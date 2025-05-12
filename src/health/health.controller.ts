@@ -6,7 +6,7 @@ import {
   PrismaHealthIndicator,
 } from '@nestjs/terminus';
 
-@ApiTags('Health')
+@ApiTags('health')
 @Controller('health')
 export class HealthController {
   constructor(
@@ -19,7 +19,7 @@ export class HealthController {
   @ApiOperation({ summary: 'Check API health status' })
   check() {
     return this.health.check([
-      async () => this.prismaHealth.pingCheck('database'),
+      () => this.prismaHealth.pingCheck('database'),
     ]);
   }
 }
