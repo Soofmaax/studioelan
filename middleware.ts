@@ -1,33 +1,36 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { getToken } from 'next-auth/jwt';
 
-export function middleware(request: NextRequest) {
-  // Add security headers
+export async function middleware(request: NextRequest) {
+  // 1. Protection des routes avec Next-Auth v4
+  const token = await getToken({ req: request });
+  const path = request.nextUrl.pathname;
+
+  // Routes protégées
+  const protectedRoutes = ['/admin', '/dashboard'];
+  if (protectedRoutes.some(route => path.startsWith(route)) && !token) {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+
+  // 2. Headers de sécurité (votre configuration actuelle)
   const headers = new Headers(request.headers);
-  const response = NextResponse.next({
-    request: {
-      headers,
-    },
-  });
+  const response = NextResponse.next({ request: { headers } });
 
-  // CSP Headers
+  // CSP (ajusté pour Stripe)
   response.headers.set(
     'Content-Security-Policy',
-    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' https://images.pexels.com data: blob: https://www.google-analytics.com; connect-src 'self' https://www.google-analytics.com;"
+    "default-src 'self'; script-src 'self' 'unsafe-inline' https://*.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https://*.stripe.com;"
   );
 
-  // Other security headers
+  // Autres headers
   response.headers.set('X-Frame-Options', 'DENY');
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  response.headers.set(
-    'Permissions-Policy',
-    'camera=(), microphone=(), geolocation=(), interest-cohort=()'
-  );
 
   return response;
 }
 
 export const config = {
-  matcher: '/((?!api|_next/static|_next/image|favicon.ico).*)',
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|login).*)'],
 };
