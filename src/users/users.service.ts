@@ -9,7 +9,6 @@ export class UsersService {
   constructor(private prisma: PrismaService) {}
 
   async create(createUserDto: CreateUserDto) {
-    // Check for existing user
     const existingUser = await this.prisma.user.findUnique({
       where: { email: createUserDto.email },
     });
@@ -20,47 +19,40 @@ export class UsersService {
 
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
-    return this.prisma.user.create({
+    const user = await this.prisma.user.create({
       data: {
         ...createUserDto,
         password: hashedPassword,
       },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        role: true,
-        createdAt: true,
-        updatedAt: true,
-      },
     });
+
+    const { password, ...result } = user;
+    return result;
   }
 
   async findAll() {
-    return this.prisma.user.findMany({
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        role: true,
-        createdAt: true,
-        updatedAt: true,
-        bookings: true,
+    const users = await this.prisma.user.findMany({
+      include: {
+        bookings: {
+          include: {
+            course: true,
+          },
+        },
       },
     });
+
+    return users.map(({ password, ...rest }) => rest);
   }
 
   async findOne(id: string) {
     const user = await this.prisma.user.findUnique({
       where: { id },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        role: true,
-        createdAt: true,
-        updatedAt: true,
-        bookings: true,
+      include: {
+        bookings: {
+          include: {
+            course: true,
+          },
+        },
       },
     });
 
@@ -68,7 +60,8 @@ export class UsersService {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
 
-    return user;
+    const { password, ...result } = user;
+    return result;
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
@@ -77,18 +70,13 @@ export class UsersService {
     }
 
     try {
-      return await this.prisma.user.update({
+      const user = await this.prisma.user.update({
         where: { id },
         data: updateUserDto,
-        select: {
-          id: true,
-          email: true,
-          name: true,
-          role: true,
-          createdAt: true,
-          updatedAt: true,
-        },
       });
+
+      const { password, ...result } = user;
+      return result;
     } catch (error) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
@@ -96,17 +84,14 @@ export class UsersService {
 
   async remove(id: string) {
     try {
-      return await this.prisma.user.delete({
+      const user = await this.prisma.user.delete({
         where: { id },
       });
+
+      const { password, ...result } = user;
+      return result;
     } catch (error) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
-  }
-
-  async findByEmail(email: string) {
-    return this.prisma.user.findUnique({
-      where: { email },
-    });
   }
 }
