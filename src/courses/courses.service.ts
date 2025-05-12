@@ -16,7 +16,20 @@ export class CoursesService {
   async findAll() {
     return this.prisma.course.findMany({
       include: {
-        bookings: true,
+        bookings: {
+          select: {
+            id: true,
+            date: true,
+            status: true,
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+          },
+        },
       },
     });
   }
@@ -25,7 +38,20 @@ export class CoursesService {
     const course = await this.prisma.course.findUnique({
       where: { id },
       include: {
-        bookings: true,
+        bookings: {
+          select: {
+            id: true,
+            date: true,
+            status: true,
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+          },
+        },
       },
     });
 

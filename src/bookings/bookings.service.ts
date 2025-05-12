@@ -26,13 +26,19 @@ export class BookingsService {
     }
 
     if (course.bookings.length >= course.capacity) {
-      throw new BadRequestException('Course is at full capacity');
+      throw new BadRequestException('Course is fully booked');
     }
 
     return this.prisma.booking.create({
       data: createBookingDto,
       include: {
-        user: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
         course: true,
       },
     });
@@ -41,7 +47,13 @@ export class BookingsService {
   async findAll() {
     return this.prisma.booking.findMany({
       include: {
-        user: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
         course: true,
       },
     });
@@ -51,7 +63,13 @@ export class BookingsService {
     const booking = await this.prisma.booking.findUnique({
       where: { id },
       include: {
-        user: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
         course: true,
       },
     });
@@ -69,7 +87,13 @@ export class BookingsService {
         where: { id },
         data: updateBookingDto,
         include: {
-          user: true,
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
           course: true,
         },
       });
