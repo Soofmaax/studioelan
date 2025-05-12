@@ -1,4 +1,3 @@
-```tsx
 import Image from 'next/image';
 
 const Testimonials = () => {
@@ -57,4 +56,3 @@ const Testimonials = () => {
 };
 
 export default Testimonials;
-```
