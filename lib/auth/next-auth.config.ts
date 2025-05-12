@@ -1,24 +1,18 @@
-import { NextAuthOptions } from 'next-auth';
-import CredentialsProvider from 'next-auth/providers/credentials';
+import { AuthOptions } from 'next-auth';
+import Credentials from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { prisma } from '@/lib/prisma';
 import { compare } from 'bcrypt';
 import type { User } from '@prisma/client';
 
-export const authOptions: NextAuthOptions = {
+export const authOptions: AuthOptions = {
   adapter: PrismaAdapter(prisma),
   session: {
     strategy: 'jwt',
-    maxAge: 7 * 24 * 60 * 60, // 7 days
-    updateAge: 24 * 60 * 60, // 24 hours
-  },
-  jwt: {
-    maxAge: 7 * 24 * 60 * 60, // 7 days
-    secret: process.env.JWT_SECRET,
   },
   providers: [
-    CredentialsProvider({
-      name: 'Credentials',
+    Credentials({
+      name: 'credentials',
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" }
@@ -58,7 +52,7 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
       }
       
-      const shouldRefreshTime = Math.floor((token.exp - Date.now()) / 1000) < 24 * 60 * 60;
+      const shouldRefreshTime = Math.floor((token.exp! - Date.now() / 1000)) < 24 * 60 * 60;
       
       if (shouldRefreshTime) {
         return {
