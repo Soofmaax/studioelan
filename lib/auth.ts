@@ -1,12 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import api from './api';
-
-interface User {
-  id: string;
-  email: string;
-  name: string;
-  role: 'ADMIN' | 'CLIENT';
-}
+import { signIn, signOut, useSession } from 'next-auth/react';
+import type { User } from '@prisma/client';
 
 interface AuthContextType {
   user: User | null;
@@ -27,31 +21,32 @@ export function useAuth() {
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const { data: session, status } = useSession();
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const isLoading = status === 'loading';
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      api.get('/auth/me')
-        .then(response => setUser(response.data))
-        .catch(() => localStorage.removeItem('token'))
-        .finally(() => setIsLoading(false));
+    if (session?.user) {
+      setUser(session.user as User);
     } else {
-      setIsLoading(false);
+      setUser(null);
     }
-  }, []);
+  }, [session]);
 
   const login = async (email: string, password: string) => {
-    const response = await api.post('/auth/login', { email, password });
-    const { access_token, user } = response.data;
-    localStorage.setItem('token', access_token);
-    setUser(user);
+    const result = await signIn('credentials', {
+      email,
+      password,
+      redirect: false,
+    });
+
+    if (result?.error) {
+      throw new Error(result.error);
+    }
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
-    setUser(null);
+    signOut();
   };
 
   return (
