@@ -9,4 +9,10 @@ jest.mock('next/navigation', () => ({
       prefetch: jest.fn(),
     };
   },
+  usePathname() {
+    return '';
+  },
+  useSearchParams() {
+    return new URLSearchParams();
+  },
 }));
