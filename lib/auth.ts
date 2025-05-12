@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { signIn, signOut, useSession } from 'next-auth/react';
 import type { User } from '@prisma/client';
+import type { Session } from 'next-auth';
 
 interface AuthContextType {
   user: User | null;
@@ -27,7 +28,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (session?.user) {
-      setUser(session.user as User);
+      setUser(session.user);
     } else {
       setUser(null);
     }
