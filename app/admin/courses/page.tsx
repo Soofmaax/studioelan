@@ -6,7 +6,7 @@ export default function CoursesPage() {
     {
       id: '1',
       title: 'Yoga Vinyasa',
-      description: 'Un style dynamique qui synchronise le mouvement avec la respiration.',
+      description: "Un style dynamique qui synchronise le mouvement avec la respiration.",
       price: 25,
       duration: 60,
       level: 'ALL_LEVELS',
@@ -15,7 +15,7 @@ export default function CoursesPage() {
     {
       id: '2',
       title: 'Yoga Doux',
-      description: 'Une pratique douce et accessible, parfaite pour les débutants.',
+      description: "Une pratique douce et accessible, parfaite pour les débutants.",
       price: 22,
       duration: 60,
       level: 'BEGINNER',
@@ -24,7 +24,7 @@ export default function CoursesPage() {
     {
       id: '3',
       title: 'Méditation',
-      description: 'Séances guidées pour apaiser l'esprit et développer la pleine conscience.',
+      description: "Séances guidées pour apaiser l'esprit et développer la pleine conscience.",
       price: 18,
       duration: 45,
       level: 'ALL_LEVELS',
