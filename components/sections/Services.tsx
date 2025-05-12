@@ -1,39 +1,82 @@
+import Image from 'next/image';
+
 const Services = () => {
   const services = [
     {
       title: "Yoga Vinyasa",
-      description: "Un style dynamique qui synchronise le mouvement avec la respiration, idéal pour développer force et souplesse.",
-      image: "https://images.pexels.com/photos/6698513/pexels-photo-6698513.jpeg"
+      description: "Une pratique dynamique qui synchronise le mouvement et la respiration pour créer un flux continu. Idéal pour développer force, souplesse et concentration.",
+      price: "25",
+      duration: "60 min",
+      level: "Tous niveaux",
+      imageUrl: "https://images.pexels.com/photos/3822219/pexels-photo-3822219.jpeg",
+      schedule: "Lun, Mer, Ven 10h & 18h"
     },
     {
-      title: "Yoga Restauratif",
-      description: "Des postures douces maintenues plus longtemps, parfaites pour la récupération et la relaxation profonde.",
-      image: "https://images.pexels.com/photos/6698615/pexels-photo-6698615.jpeg"
+      title: "Yin Yoga",
+      description: "Une pratique douce et méditative qui cible les tissus conjonctifs. Les postures sont maintenues plus longtemps pour favoriser la relaxation profonde.",
+      price: "22",
+      duration: "75 min",
+      level: "Tous niveaux",
+      imageUrl: "https://images.pexels.com/photos/3759657/pexels-photo-3759657.jpeg",
+      schedule: "Mar, Jeu 12h & 20h"
     },
     {
       title: "Méditation",
-      description: "Des séances guidées pour apaiser l'esprit et développer la pleine conscience au quotidien.",
-      image: "https://images.pexels.com/photos/8436589/pexels-photo-8436589.jpeg"
+      description: "Des séances guidées pour apaiser l'esprit, réduire le stress et favoriser la conscience de soi. Une pratique accessible à tous pour cultiver la paix intérieure.",
+      price: "18",
+      duration: "45 min",
+      level: "Débutant à avancé",
+      imageUrl: "https://images.pexels.com/photos/8964015/pexels-photo-8964015.jpeg",
+      schedule: "Mer, Sam 9h & 17h"
     }
   ];
 
   return (
-    <section className="py-20 bg-cream">
-      <div className="container mx-auto px-6">
-        <h2 className="text-3xl md:text-4xl font-serif text-sage text-center mb-12">Nos Services</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <section id="services" class="py-20">
+      <div class="container mx-auto px-4">
+        <div class="text-center mb-16">
+          <h2 class="text-3xl md:text-4xl font-serif font-bold text-gray-900 dark:text-white mb-4">
+            Nos Services
+          </h2>
+          <div class="w-24 h-1 bg-primary-500 mx-auto mb-8"></div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
           {services.map((service, index) => (
-            <div key={index} className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
-              <div className="relative h-64">
-                <img
-                  src={service.image}
+            <div key={index} class="bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-lg transition-transform duration-300 hover:-translate-y-2 group">
+              <div class="relative h-60">
+                <Image 
+                  src={service.imageUrl}
                   alt={service.title}
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
               </div>
-              <div className="p-6">
-                <h3 className="text-xl font-serif text-sage mb-4">{service.title}</h3>
-                <p className="text-gray-600">{service.description}</p>
+              
+              <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                  <h3 class="text-xl font-bold text-gray-900 dark:text-white font-serif">
+                    {service.title}
+                  </h3>
+                  <span class="text-accent-600 dark:text-accent-400 font-bold text-xl">
+                    {service.price}€
+                  </span>
+                </div>
+                
+                <p class="text-gray-600 dark:text-gray-400 mb-4">
+                  {service.description}
+                </p>
+                
+                <div class="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+                  <div class="flex justify-between text-sm text-gray-500 dark:text-gray-400 mb-2">
+                    <span>{service.duration}</span>
+                    <span>{service.level}</span>
+                  </div>
+                  <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                    {service.schedule}
+                  </p>
+                </div>
               </div>
             </div>
           ))}
