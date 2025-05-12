@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { toast } from '@/components/ui/toast';
+import { logger } from '@/lib/logger';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -10,10 +12,33 @@ export default function ContactPage() {
     message: ''
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
-    console.log(formData);
+    try {
+      // Handle form submission
+      await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+      
+      toast({
+        title: 'Succès',
+        description: 'Votre message a été envoyé',
+        variant: 'success',
+      });
+      
+      setFormData({ name: '', email: '', subject: '', message: '' });
+    } catch (error) {
+      logger.error('Contact form submission failed:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Une erreur est survenue lors de l\'envoi du message',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {

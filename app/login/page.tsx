@@ -4,11 +4,12 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import { ErrorMessage } from '@/components/ui/error-message';
+import type { ApiError } from '@/types/api';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { login } = useAuth();
@@ -21,8 +22,9 @@ export default function LoginPage() {
     try {
       await login(email, password);
       router.push('/admin');
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Une erreur est survenue');
+    } catch (err) {
+      const apiError = err as ApiError;
+      setError(apiError.response?.data?.message || 'Une erreur est survenue');
     } finally {
       setIsLoading(false);
     }
