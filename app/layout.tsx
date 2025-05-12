@@ -5,6 +5,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { AuthProvider } from '@/lib/auth';
 import { Analytics } from '@/components/Analytics';
+import { Providers } from '@/components/Providers';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const playfair = Playfair_Display({ subsets: ['latin'], variable: '--font-playfair' });
@@ -18,6 +19,8 @@ export const metadata: Metadata = {
   keywords: ['yoga', 'méditation', 'bien-être', 'paris', 'cours de yoga', 'studio de yoga'],
   authors: [{ name: 'Studio Élan' }],
   creator: 'Studio Élan',
+  manifest: '/manifest.json',
+  themeColor: '#B2C2B1',
   openGraph: {
     type: 'website',
     locale: 'fr_FR',
@@ -49,14 +52,17 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr" className={`${inter.variable} ${playfair.variable}`}>
+      <head />
       <body className="min-h-screen bg-cream flex flex-col">
-        <AuthProvider>
-          <Header />
-          <main className="flex-grow">
-            {children}
-          </main>
-          <Footer />
-        </AuthProvider>
+        <Providers>
+          <AuthProvider>
+            <Header />
+            <main className="flex-grow">
+              {children}
+            </main>
+            <Footer />
+          </AuthProvider>
+        </Providers>
         <Analytics />
       </body>
     </html>
