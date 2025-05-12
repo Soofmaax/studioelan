@@ -1,11 +1,10 @@
-```tsx
 import Image from 'next/image';
 
 const Services = () => {
   const services = [
     {
       title: "Yoga Vinyasa",
-      description: "Une pratique dynamique qui synchronise le mouvement et la respiration pour créer un flux continu. Idéal pour développer force, souplesse et concentration.",
+      description: "Un style dynamique qui synchronise le mouvement et la respiration pour créer un flux continu. Idéal pour développer force, souplesse et concentration.",
       price: "25",
       duration: "60 min",
       level: "Tous niveaux",
@@ -88,4 +87,3 @@ const Services = () => {
 };
 
 export default Services;
-```
