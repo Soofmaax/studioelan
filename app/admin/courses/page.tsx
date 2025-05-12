@@ -5,11 +5,12 @@ import Link from 'next/link';
 import { fetchCourses, deleteCourse } from '@/lib/api/courses';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { toast } from '@/components/ui/toast';
+import type { Course } from '@/types/course';
 
 export default function CoursesPage() {
   const queryClient = useQueryClient();
   
-  const { data: courses, isLoading, error } = useQuery({
+  const { data: courses, isLoading, error } = useQuery<Course[]>({
     queryKey: ['courses'],
     queryFn: fetchCourses,
   });
