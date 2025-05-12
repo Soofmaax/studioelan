@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
+import type { User } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
@@ -14,7 +15,7 @@ export class UsersService {
     });
   }
 
-  async create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto): Promise<Omit<User, 'password'>> {
     const existingUser = await this.prisma.user.findUnique({
       where: { email: createUserDto.email },
     });
@@ -32,11 +33,11 @@ export class UsersService {
       },
     });
 
-    const { password, ...result } = user;
+    const { password: _, ...result } = user;
     return result;
   }
 
-  async findAll() {
+  async findAll(): Promise<Omit<User, 'password'>[]> {
     const users = await this.prisma.user.findMany({
       include: {
         bookings: {
@@ -47,10 +48,10 @@ export class UsersService {
       },
     });
 
-    return users.map(({ password, ...rest }) => rest);
+    return users.map(({ password: _, ...rest }) => rest);
   }
 
-  async findOne(id: string) {
+  async findOne(id: string): Promise<Omit<User, 'password'>> {
     const user = await this.prisma.user.findUnique({
       where: { id },
       include: {
@@ -66,11 +67,11 @@ export class UsersService {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
 
-    const { password, ...result } = user;
+    const { password: _, ...result } = user;
     return result;
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
+  async update(id: string, updateUserDto: UpdateUserDto): Promise<Omit<User, 'password'>> {
     if (updateUserDto.password) {
       updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
     }
@@ -81,20 +82,20 @@ export class UsersService {
         data: updateUserDto,
       });
 
-      const { password, ...result } = user;
+      const { password: _, ...result } = user;
       return result;
     } catch (error) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
   }
 
-  async remove(id: string) {
+  async remove(id: string): Promise<Omit<User, 'password'>> {
     try {
       const user = await this.prisma.user.delete({
         where: { id },
       });
 
-      const { password, ...result } = user;
+      const { password: _, ...result } = user;
       return result;
     } catch (error) {
       throw new NotFoundException(`User with ID ${id} not found`);
