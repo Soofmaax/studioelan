@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/auth';
+import { useAuth } from '@/lib/AuthProvider';
 import { ErrorMessage } from '@/components/ui/error-message';
 import type { ApiError } from '@/types/api';
 

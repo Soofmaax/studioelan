@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Calendar } from 'react-big-calendar';
-import { useAuth } from '@/lib/auth';
+import { useAuth } from '@/lib/AuthProvider';
 import { useBookings } from '@/hooks/use-bookings';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { toast } from '@/components/ui/toast';
