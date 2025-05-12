@@ -1,7 +1,6 @@
 import Link from 'next/link';
 
 export default function CoursesPage() {
-  // Mock courses data
   const courses = [
     {
       id: '1',
