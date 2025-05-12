@@ -3,6 +3,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { prisma } from '@/lib/prisma';
 import { compare } from 'bcrypt';
+import { JWT } from 'next-auth/jwt';
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -10,6 +11,21 @@ export const authOptions: NextAuthOptions = {
     strategy: 'jwt',
     maxAge: 7 * 24 * 60 * 60, // 7 days
     updateAge: 24 * 60 * 60, // 24 hours
+  },
+  jwt: {
+    maxAge: 7 * 24 * 60 * 60, // 7 days
+    secret: process.env.JWT_SECRET,
+  },
+  cookies: {
+    sessionToken: {
+      name: '__Secure-next-auth.session-token',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+      },
+    },
   },
   providers: [
     CredentialsProvider({
@@ -20,7 +36,7 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          return null;
+          throw new Error('Missing credentials');
         }
 
         const user = await prisma.user.findUnique({
@@ -28,13 +44,13 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!user) {
-          return null;
+          throw new Error('User not found');
         }
 
         const isValid = await compare(credentials.password, user.password);
 
         if (!isValid) {
-          return null;
+          throw new Error('Invalid password');
         }
 
         return {
@@ -47,15 +63,28 @@ export const authOptions: NextAuthOptions = {
     })
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       if (user) {
         token.role = user.role;
+        token.id = user.id;
       }
+      
+      // Rotate JWT if it's nearing expiration
+      const shouldRefreshTime = Math.floor((token.exp - Date.now()) / 1000) < 24 * 60 * 60;
+      
+      if (shouldRefreshTime) {
+        return {
+          ...token,
+          exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
+        };
+      }
+
       return token;
     },
     async session({ session, token }) {
       if (token) {
-        session.user.role = token.role;
+        session.user.id = token.id as string;
+        session.user.role = token.role as string;
       }
       return session;
     }
@@ -63,5 +92,13 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: '/login',
     error: '/error',
-  }
+  },
+  events: {
+    async signIn({ user }) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { lastLogin: new Date() },
+      });
+    },
+  },
 };
