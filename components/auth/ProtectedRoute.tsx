@@ -2,10 +2,11 @@ import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 import { useAuth } from '@/lib/auth';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import type { Role } from '@prisma/client';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  allowedRoles?: ('ADMIN' | 'CLIENT')[];
+  allowedRoles?: Role[];
 }
 
 export default function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
@@ -13,10 +14,12 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
   const router = useRouter();
 
   useEffect(() => {
-    if (!isLoading && !user) {
-      router.push('/login');
-    } else if (!isLoading && allowedRoles && !allowedRoles.includes(user?.role!)) {
-      router.push('/');
+    if (!isLoading) {
+      if (!user) {
+        router.push('/login');
+      } else if (allowedRoles && !allowedRoles.includes(user.role)) {
+        router.push('/');
+      }
     }
   }, [user, isLoading, router, allowedRoles]);
 
