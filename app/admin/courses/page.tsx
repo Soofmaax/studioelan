@@ -1,35 +1,53 @@
+'use client';
+
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
+import { fetchCourses, deleteCourse } from '@/lib/api/courses';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { toast } from '@/components/ui/toast';
 
 export default function CoursesPage() {
-  const courses = [
-    {
-      id: '1',
-      title: 'Yoga Vinyasa',
-      description: "Un style dynamique qui synchronise le mouvement avec la respiration.",
-      price: 25,
-      duration: 60,
-      level: 'ALL_LEVELS',
-      capacity: 15,
+  const queryClient = useQueryClient();
+  
+  const { data: courses, isLoading, error } = useQuery({
+    queryKey: ['courses'],
+    queryFn: fetchCourses,
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteCourse,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['courses'] });
+      toast({
+        title: 'Succès',
+        description: 'Le cours a été supprimé',
+        variant: 'success',
+      });
     },
-    {
-      id: '2',
-      title: 'Yoga Doux',
-      description: "Une pratique douce et accessible, parfaite pour les débutants.",
-      price: 22,
-      duration: 60,
-      level: 'BEGINNER',
-      capacity: 12,
+    onError: () => {
+      toast({
+        title: 'Erreur',
+        description: 'Une erreur est survenue lors de la suppression du cours',
+        variant: 'destructive',
+      });
     },
-    {
-      id: '3',
-      title: 'Méditation',
-      description: "Séances guidées pour apaiser l'esprit et développer la pleine conscience.",
-      price: 18,
-      duration: 45,
-      level: 'ALL_LEVELS',
-      capacity: 20,
-    },
-  ];
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <LoadingSpinner className="h-8 w-8" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
+        Une erreur est survenue lors du chargement des cours
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -41,9 +59,12 @@ export default function CoursesPage() {
           </p>
         </div>
         <div className="mt-4 sm:mt-0">
-          <button className="bg-sage hover:bg-gold text-white px-4 py-2 rounded-md">
+          <Link
+            href="/admin/courses/new"
+            className="bg-sage hover:bg-gold text-white px-4 py-2 rounded-md transition-colors"
+          >
             Ajouter un cours
-          </button>
+          </Link>
         </div>
       </div>
 
@@ -76,7 +97,7 @@ export default function CoursesPage() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {courses.map((course) => (
+              {courses?.map((course) => (
                 <tr key={course.id}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {course.title}
@@ -99,12 +120,20 @@ export default function CoursesPage() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
                     <Link
                       href={`/admin/courses/${course.id}/edit`}
-                      className="text-sage hover:text-gold"
+                      className="text-sage hover:text-gold transition-colors"
                     >
                       Modifier
                     </Link>
-                    <button className="text-red-600 hover:text-red-800">
-                      Supprimer
+                    <button
+                      onClick={() => {
+                        if (window.confirm('Êtes-vous sûr de vouloir supprimer ce cours ?')) {
+                          deleteMutation.mutate(course.id);
+                        }
+                      }}
+                      className="text-red-600 hover:text-red-800 transition-colors"
+                      disabled={deleteMutation.isPending}
+                    >
+                      {deleteMutation.isPending ? 'Suppression...' : 'Supprimer'}
                     </button>
                   </td>
                 </tr>
